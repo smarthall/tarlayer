@@ -53,15 +53,15 @@ function tarlayer_add_file() {
     local group="$6"
 
     # Set defaults for the optional args
-    if [ -z ${owner} ]; then
+    if [ -z "${owner}" -o "${owner}" = "-" ]; then
         owner='root'
     fi
 
-    if [ -z ${group} ]; then
+    if [ -z "${group}" -o "${group}" = "-" ]; then
         group='root'
     fi
 
-    if [ -z ${mode} ]; then
+    if [ -z "${mode}" -o "${mode}" = "-" ]; then
         mode='0400'
     fi
 
