@@ -26,7 +26,7 @@ function tarlayer_init_layer() {
 function tarlayer_save_layer() {
     local layer="$1"
     local savefile="$2"
-	local password="$3"
+    local password="$3"
 
     # Compress + encrypt the file
     xz -c ${layer} | openssl enc -aes-256-cbc -e -out ${savefile} -pass pass:${password}
@@ -40,17 +40,40 @@ function tarlayer_save_layer() {
 #   1. The location of the layer temp file
 #   2. The file to add to the layer
 #   3. The location of the file inside the layer
+# Optional Args:
+#   4. The mode the file should be stored with
+#   5. The owner of the file
+#   6. The group the file is owned by
 function tarlayer_add_file() {
     local layer=$1
     local file=$2
     local loc=$3
+    local mode="$4"
+    local owner="$5"
+    local group="$6"
+
+    # Set defaults for the optional args
+    if [ -z ${owner} ]; then
+        owner='root'
+    fi
+
+    if [ -z ${group} ]; then
+        group='root'
+    fi
+
+    if [ -z ${mode} ]; then
+        mode='0400'
+    fi
 
     # Add the file to the tar file at the right location
     tar --absolute-names \
-		--append \
-		--file=${layer} \
-		--transform="s|.*|${loc}|" \
-		--add-file="${file}"
+        --append \
+        --file=${layer} \
+        --transform="s|.*|${loc}|" \
+        --add-file="${file}" \
+        --owner=${owner} \
+        --group=${group} \
+        --mode=${mode}
 }
 
 # Lists the contents 
@@ -58,9 +81,9 @@ function tarlayer_add_file() {
 #   1. The location of the layer file
 #   2. The password used to encrypt the layer
 function tarlayer_list_contents() {
-	local layerfile=$1
-	local password=$2
+    local layerfile=$1
+    local password=$2
 
-	openssl enc -aes-256-cbc -d -in ${layerfile} -pass pass:${password} | xz --decompress --stdout - | tar --absolute-names -tv
+    openssl enc -aes-256-cbc -d -in ${layerfile} -pass pass:${password} | xz --decompress --stdout - | tar --absolute-names -tv
 }
 

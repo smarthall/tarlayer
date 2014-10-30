@@ -9,7 +9,7 @@ source tarlayer.sh
 tarlayer_init_layer layer
 
 # Add some files to it
-tarlayer_add_file ${layer} /etc/fstab /etc/fstab
+tarlayer_add_file ${layer} /etc/fstab /etc/fstab 0755
 tarlayer_add_file ${layer} test.sh /var/lib/test.sh
 tarlayer_add_file ${layer} /etc/resolv.conf /home/daniel/resolv.conf
 
