@@ -11,7 +11,7 @@
 # Makes a basic layer with nothing in it
 # Args:
 #   1. The variable name to put the temp layer filename in
-function initLayer() {
+function tarlayer_init_layer() {
     local __layer=$1
     local tempfile=$(mktemp)
     tar -cvf ${tempfile} --files-from /dev/null
@@ -22,15 +22,14 @@ function initLayer() {
 # Args:
 #   1. The location of the layer temp file
 #   2. The filename of the output layer
-function saveLayer() {
+#   3. The password to encrypt the layer with
+function tarlayer_save_layer() {
     local layer="$1"
     local savefile="$2"
+	local password="$3"
 
-    # Output contents of layer
-    tar --absolute-names -tvf ${layer}
-
-    # Compress the file
-    xz -c ${layer} > ${savefile}
+    # Compress + encrypt the file
+    xz -c ${layer} | openssl enc -aes-256-cbc -e -out ${savefile} -pass pass:${password}
 
     # Remove the old file
     srm ${layer}
@@ -41,7 +40,7 @@ function saveLayer() {
 #   1. The location of the layer temp file
 #   2. The file to add to the layer
 #   3. The location of the file inside the layer
-function addFile() {
+function tarlayer_add_file() {
     local layer=$1
     local file=$2
     local loc=$3
@@ -54,4 +53,14 @@ function addFile() {
 		--add-file="${file}"
 }
 
+# Lists the contents 
+# Args:
+#   1. The location of the layer file
+#   2. The password used to encrypt the layer
+function tarlayer_list_contents() {
+	local layerfile=$1
+	local password=$2
+
+	openssl enc -aes-256-cbc -d -in ${layerfile} -pass pass:${password} | xz --decompress --stdout - | tar --absolute-names -tv
+}
 

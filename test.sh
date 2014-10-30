@@ -1,15 +1,21 @@
 #!/bin/bash
 
+password='encrypt'
+layerfile='out.tar.xz.enc'
+
 source tarlayer.sh
 
 # Start the process of making a layer
-initLayer layer
+tarlayer_init_layer layer
 
 # Add some files to it
-addFile $layer /etc/fstab /etc/fstab
-addFile $layer test.sh /var/lib/test.sh
-addFile $layer /etc/resolv.conf /home/daniel/resolv.conf
+tarlayer_add_file ${layer} /etc/fstab /etc/fstab
+tarlayer_add_file ${layer} test.sh /var/lib/test.sh
+tarlayer_add_file ${layer} /etc/resolv.conf /home/daniel/resolv.conf
 
 # Save the layer to a tar file
-saveLayer $layer test.tar.xz
+tarlayer_save_layer ${layer} ${layerfile} ${password}
+
+# List the contents
+tarlayer_list_contents ${layerfile} ${password}
 
