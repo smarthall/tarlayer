@@ -87,3 +87,27 @@ function tarlayer_list_contents() {
     openssl enc -aes-256-cbc -d -in ${layerfile} -pass pass:${password} | xz --decompress --stdout - | tar --absolute-names -tv
 }
 
+# Extracts a layer file, with an optional base location
+# Args
+#   1. The location of the layer file
+#   2. The password used to encrypt the layer
+#   3. An optional base location to extract the files to
+function tarlayer_extract() {
+    local layerfile=$1
+    local password=$2
+    local base=$3
+
+    if [ -z "$base" ]; then
+        local base='/'
+    fi
+
+    openssl enc -aes-256-cbc -d -in ${layerfile} -pass pass:${password} | xz --decompress --stdout - | tar -xv -C ${base}
+}
+
+
+# This runs if the script is not being sourced from another script
+set -x
+if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
+    tarlayer_extract $1 $2 $3
+fi
+
